@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Noebs Server Status</title>
+</head>
+
+<body>
+
+    <p>Server Status</p>
+    <p id="status"></p>
+
+
+    <h2>Previous Incidents</h2>
+    TODO
+
+    <script>
+
+        fetch("http://localhost:55555/pinger").then((response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Something went wrong');
+            }
+        })
+            .then((responseJson) => {
+                document.getElementById("status").innerHTML = "Server is ok"
+            })
+            .catch((error) => {
+                document.getElementById("status").innerHTML = "EBS Server is down"
+            });
+
+    </script>
+</body>
+
+</html>
