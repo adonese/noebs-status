@@ -4,22 +4,35 @@ import (
 	"crypto/tls"
 	"log"
 	"net/http"
+	"text/template"
 	"time"
 )
 
 func isAlive(w http.ResponseWriter, r *http.Request) {
 
-	//Allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	if r.Method == "OPTIONS" || r.Method == "GET" {
-		return
+	// //Allow CORS here By * or specific origin
+	// // w.Header().Set("Access-Control-Allow-Origin", "*")
+	// // w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	// // if r.Method == "OPTIONS" || r.Method == "GET" {
+	// // 	return
+	// // }
+
+	tmpl, err := template.ParseFiles("index.html")
+	if err != nil {
+		panic(err)
 	}
+
+	var status = "down"
+
+	d := map[string]string{
+		"status": status,
+	}
+
 	var url string
 	url = r.URL.Query().Get("ip")
 	if url == "" {
 		url = "https://172.16.198.14:8888/EBSGateway/isAlive"
-		// url = "https://beta.soluspay.net/api/test"
+		url = "https://beta.soluspay.net/api/test"
 	}
 
 	// url = "https://beta.soluspay.net/api/test"
@@ -34,26 +47,29 @@ func isAlive(w http.ResponseWriter, r *http.Request) {
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
 		log.Printf("The error is: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
 
 	res, err := httpClient.Do(req)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("The error is: %v", err)
+		tmpl.ExecuteTemplate(w, "index.html", d)
 		return
 	}
 
-	if res.StatusCode != http.StatusOK {
-		w.WriteHeader(http.StatusBadGateway)
-		return
+	if res.StatusCode == http.StatusOK {
+		d["status"] = "up"
 	}
-	w.WriteHeader(http.StatusOK)
+
+	err = tmpl.ExecuteTemplate(w, "index.html", d)
+	if err != nil {
+		panic(err)
+	}
 
 }
 
 func main() {
-	http.HandleFunc("/pinger", isAlive)
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static", fs)
+	http.HandleFunc("/", isAlive)
 	log.Fatal(http.ListenAndServe(":55555", nil))
 }
