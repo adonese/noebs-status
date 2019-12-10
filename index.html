@@ -16,7 +16,7 @@
 
     <script>
 
-        fetch("http://localhost:55555/pinger").then((response) => {
+        fetch("http://localhost:55555/pinger", {"method": "post"}).then((response) => {
             if (response.ok) {
                 return response.json();
             } else {
@@ -24,9 +24,11 @@
             }
         })
             .then((responseJson) => {
+                console.log("the response is: ", responseJson)
                 document.getElementById("status").innerHTML = "Server is ok"
             })
             .catch((error) => {
+                console.log("there is an error: ", error)
                 document.getElementById("status").innerHTML = "EBS Server is down"
             });
 

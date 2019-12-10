@@ -8,6 +8,13 @@ import (
 )
 
 func isAlive(w http.ResponseWriter, r *http.Request) {
+
+	//Allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	if r.Method == "OPTIONS" || r.Method == "GET" {
+		return
+	}
 	var url string
 	url = r.URL.Query().Get("ip")
 	if url == "" {
@@ -15,18 +22,14 @@ func isAlive(w http.ResponseWriter, r *http.Request) {
 		// url = "https://beta.soluspay.net/api/test"
 	}
 
-	url = "https://beta.soluspay.net/api/test"
+	// url = "https://beta.soluspay.net/api/test"
 	httpClient := http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: true,
 			}},
-		Timeout: 5 * time.Second,
+		Timeout: 10 * time.Second,
 	}
-
-	//Allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
