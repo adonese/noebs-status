@@ -12,7 +12,7 @@ func isAlive(w http.ResponseWriter, r *http.Request) {
 	url = r.URL.Query().Get("ip")
 	if url == "" {
 		url = "https://172.16.198.14:8888/EBSGateway/isAlive"
-		url = "https://beta.soluspay.net/api/test"
+		// url = "https://beta.soluspay.net/api/test"
 	}
 
 	url = "https://beta.soluspay.net/api/test"
